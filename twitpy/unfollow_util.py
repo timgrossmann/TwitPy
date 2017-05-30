@@ -34,11 +34,12 @@ def unfollow_users(browser, amount):
 
   action_chain = Actions(browser)
 
-  for button in timeline[:followed]:
+  for index, button in enumerate(timeline[:followed]):
     action_chain.move_to_element(button)
     action_chain.wait(1)
     action_chain.click()
     action_chain.wait(1)
+    action_chain.print_it(str(index + 1) + '/' + str(followed))
 
   action_chain.perform()
 
