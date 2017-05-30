@@ -33,7 +33,8 @@ def follow_from_recommended(browser, amount):
 
   action_chain = Actions(browser)
 
-  for button in timeline[:followed]:
+  for index, button in enumerate(timeline[:followed]):
+    print(str(index) + '/' + followed)
     action_chain.move_to_element(button)
     action_chain.wait(1)
     action_chain.click()
