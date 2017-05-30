@@ -10,15 +10,15 @@ requirements = [
     'pyvirtualdisplay'
 ]
 
-description = ’Twitter Follow Automation Script’
+description = 'Instagram Like, Comment and Follow Automation Script'
 
 setup(
-    name=‘twitter_py’,
+    name='instagram_py',
     version=__version__,
     author=__author__,
     author_email='contact.timgrossmann@gmail.com',
-    url='https://github.com/timgrossmann/TwitPy’,
-    py_modules=‘twitpy’,
+    url='https://github.com/timgrossmann/InstaPy',
+    py_modules='instapy',
     description=description,
     install_requires=requirements
 )
