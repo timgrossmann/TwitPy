@@ -10,7 +10,7 @@ requirements = [
     'pyvirtualdisplay'
 ]
 
-description = ‘Twitter Follow Automation Script'
+description = ’Twitter Follow Automation Script’
 
 setup(
     name=‘twitter_py’,
