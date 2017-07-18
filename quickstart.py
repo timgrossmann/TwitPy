@@ -1,6 +1,7 @@
 from twitpy import TwitPy
 
-TwitPy(username="t_tomgrossmann", password="Hawai1994") \
+TwitPy(username="t_tomgrossmann", password="****") \
   .login() \
-  .follow_users(amount=100) \
+  .follow_from_recom(amount=250) \
+  .unfollow_users(amount=100) \
   .end()

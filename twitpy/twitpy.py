@@ -21,6 +21,21 @@ class TwitPy:
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--lang=en-US')
     chrome_options.add_experimental_option('prefs', {'intl.accept_languages': 'en-US'})
+
+    # managed_default_content_settings.images = 2: Disable images load, this setting can improve pageload & save bandwidth
+    # default_content_setting_values.notifications = 2: Disable notifications
+    # credentials_enable_service & password_manager_enabled = false: Ignore save password prompt from chrome
+    chrome_prefs = {
+      'intl.accept_languages': 'en-US',
+      'profile.managed_default_content_settings.images': 2,
+      'profile.default_content_setting_values.notifications': 2,
+      'credentials_enable_service': False,
+      'profile': {
+        'password_manager_enabled': False
+      }
+    }
+    chrome_options.add_experimental_option('prefs', chrome_prefs)
+
     self.browser = webdriver.Chrome('./assets/chromedriver', chrome_options=chrome_options)
     self.browser.implicitly_wait(5)
 
@@ -57,7 +72,7 @@ class TwitPy:
 
     return self
 
-  def follow_users(self, amount=50):
+  def follow_from_recom(self, amount=50):
     """Follows given amount of users from the 'Who to follow' list"""
 
     if self.aborting:
@@ -66,9 +81,17 @@ class TwitPy:
     followed = amount
 
     while followed > 0:
-      followed -= follow_from_recommended(self.browser, followed)
+      new_followed = follow_from_recommended(self.browser, followed)
 
-    self.followed += amount
+      if new_followed == 0:
+        print('Aborting because no recommendations left')
+        self.logFile.write('Aborting because no recommendations left\n')
+        break
+
+      followed -= new_followed
+
+
+    self.followed += followed
 
     return self
 
@@ -78,7 +101,15 @@ class TwitPy:
     if self.aborting:
       return self
 
-    unfollow_users(self.browser, amount)
+    to_unfollow = amount
+
+    while to_unfollow > 0:
+      new_unfollowed = unfollow_users(self.browser, to_unfollow)
+
+      if new_unfollowed == 0:
+        break
+
+      to_unfollow -= new_unfollowed
 
     return self
 
