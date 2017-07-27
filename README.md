@@ -22,7 +22,9 @@ Now edit the `quickstart.py` file to your needs.
 ```python
 from twitpy import TwitPy
 
-TwitPy(username="****", password="****") \
+# if you want to run it on a server simply set nogui=True
+
+TwitPy(username="****", password="****",nogui=False) \
   .login() \
   # follows up to 250 accounts from your recommendations
   .follow_from_recom(amount=250) \ 
