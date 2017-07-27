@@ -1,4 +1,6 @@
 # TwitPy
+<img src="http://theinspirationroom.com/daily/design/2012/6/new_twitter_logo.jpg" align="right" width=100>
+
 ### Quick and dirty follow/unfollow automation for Twitter.
 
 [![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/timgrossmann/InstaPy/blob/master/LICENSE)
