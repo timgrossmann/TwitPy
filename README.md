@@ -1,6 +1,10 @@
 # TwitPy
 ### Quick and dirty follow/unfollow automation for Twitter.
 
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/timgrossmann/InstaPy/blob/master/LICENSE)
+[![built with Selenium](https://img.shields.io/badge/built%20with-Selenium-red.svg)](https://github.com/SeleniumHQ/selenium)
+[![built with Python3](https://img.shields.io/badge/built%20with-Python3-green.svg)](https://www.python.org/)
+
 #### Getting started
 ```bash
 git clone https://github.com/timgrossmann/TwitPy.git
@@ -9,6 +13,8 @@ pip install .
 # or depending on your system
 python setup.py install
 ```
+
+Make sure to get the right `chromedrive` for your system [from here](https://sites.google.com/a/chromium.org/chromedriver/downloads). Just put it in /assets.
 
 Now edit the `quickstart.py` file to your needs.
 
