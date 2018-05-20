@@ -1,0 +1,4 @@
+# configuration is stored in here.
+CHROME_PATH='/usr/local/bin/chromedriver'
+USERNAME='twittername'
+PASSWORD='twitterpassword'
