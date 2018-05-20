@@ -11,7 +11,7 @@ from .unfollow_util import unfollow_users
 
 class TwitPy:
   """Class to be instantiated to use the script"""
-  def __init__(self, username=None, password=None, nogui=False):
+  def __init__(self, username=None, password=None, nogui=False, chrome_path='./assets/chromedriver'):
     if nogui:
       self.display = Display(visible=0, size=(800, 600))
       self.display.start()
@@ -36,7 +36,7 @@ class TwitPy:
     }
     chrome_options.add_experimental_option('prefs', chrome_prefs)
 
-    self.browser = webdriver.Chrome('./assets/chromedriver', chrome_options=chrome_options)
+    self.browser = webdriver.Chrome(chrome_path, chrome_options=chrome_options)
     self.browser.implicitly_wait(5)
 
     self.logFile = open('./logs/logFile.txt', 'a')
