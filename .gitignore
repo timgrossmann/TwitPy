@@ -104,3 +104,5 @@ ENV/
 logs/
 config.py
 
+# vscode
+.vscode/
