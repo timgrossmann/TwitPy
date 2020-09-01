@@ -6,7 +6,7 @@ from selenium.common.exceptions import StaleElementReferenceException
 
 
 class FollowUtil:
-    def __init__(self, browser, amount, delay_click=6, num_discovery_retries=1, discovery_retry_delay=1, logger=None, debug=False):
+    def __init__(self, browser, amount, delay_click=6, delay_reload=15, num_discovery_retries=1, discovery_retry_delay=1, logger=None, debug=False):
         self.browser = browser
         self.amount = amount
         self.num_discovery_retries = num_discovery_retries
@@ -14,7 +14,8 @@ class FollowUtil:
         self.logger = logger
         self.debug = debug
         self.num_followed = 0
-        self.delay_click=delay_click
+        self.delay_click = delay_click
+        self.delay_reload = delay_reload
 
     def follow_from_recommended(self):
         """Follows given amount of users from the who to follow list"""
@@ -29,14 +30,15 @@ class FollowUtil:
             try:
                 self.perform_follow(discovery)  #  Sometimes it clicks the user instead of the button.
             except StaleElementReferenceException:
-              self.browser.get("https://twitter.com/i/connect_people")
-              if self.logger:
-                self.logger.info("Miss click. Going back to recommendations")
-              continue
+                self.browser.get("https://twitter.com/i/connect_people")
+                if self.logger:
+                    self.logger.info("Miss click. Going back to recommendations")
+                continue
 
             if self.logger and self.debug:
                 self.logger.debug("Reloading the page")
             self.browser.refresh()  # Twitter seems to have disabled the infinite scroll by 2020.
+            sleep(self.delay_reload)
 
         if self.logger and self.debug:
             self.logger.info("Finished follow discovery successfully")

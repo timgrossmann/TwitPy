@@ -6,7 +6,7 @@ from selenium.common.exceptions import StaleElementReferenceException, NoSuchEle
 
 
 class UnfollowUtil:
-    def __init__(self, browser, amount, delay_click=6, num_discovery_retries=1, discovery_retry_delay=1, logger=None, debug=False):
+    def __init__(self, browser, amount, delay_click=6, delay_reload=15, num_discovery_retries=1, discovery_retry_delay=1, logger=None, debug=False):
         self.browser = browser
         self.amount = amount
         self.num_discovery_retries = num_discovery_retries
@@ -15,6 +15,7 @@ class UnfollowUtil:
         self.debug = debug
         self.num_unfollowed = 0
         self.delay_click = delay_click
+        self.delay_reload = delay_reload
 
     def unfollow_users(self):
         """Follows given amount of users from the who to unfollow list"""
@@ -34,13 +35,14 @@ class UnfollowUtil:
                     self.logger.info("Miss click. Going back to recommendations")
                 continue
             except NoSuchElementException:
-              if self.logger:
-                self.logger.info("Didnt found any unfollowable item, skipping")
-              return 0
+                if self.logger:
+                    self.logger.info("Didnt found any unfollowable item, skipping")
+                return 0
 
             if self.logger and self.debug:
                 self.logger.debug("Reloading the page")
             self.browser.refresh()  # Twitter seems to have disabled the infinite scroll by 2020.
+            sleep(self.delay_reload)
 
         if self.logger and self.debug:
             self.logger.info("Finished unfollow discovery successfully")

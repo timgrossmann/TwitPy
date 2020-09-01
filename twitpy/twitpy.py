@@ -138,7 +138,6 @@ class TwitPy:
         if self.nogui:
             self.display.stop()
 
-        LOGGER.info("")
         LOGGER.info("Session ended")
         LOGGER.info("-------------")
 
