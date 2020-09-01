@@ -2,72 +2,89 @@
 from .actions import Actions
 from .time_util import sleep
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import StaleElementReferenceException
 
 
-def follow_from_recommended(browser, amount, num_reload_retries=10, retry_delay=2, logger=None, debug=False):
-    """Follows given amount of users from the who to follow list"""
+class FollowUtil:
+    def __init__(self, browser, amount, delay_click=6, num_discovery_retries=1, discovery_retry_delay=1, logger=None, debug=False):
+        self.browser = browser
+        self.amount = amount
+        self.num_discovery_retries = num_discovery_retries
+        self.discovery_retry_delay = discovery_retry_delay
+        self.logger = logger
+        self.debug = debug
+        self.num_followed = 0
+        self.delay_click=delay_click
 
-    followed = 0
-    last_length = 0
+    def follow_from_recommended(self):
+        """Follows given amount of users from the who to follow list"""
+        self.browser.get("https://twitter.com/i/connect_people")  #  maybe it's useful for something passing user_id param ?
+        self.num_followed = 0
+        while self.num_followed < self.amount:
 
-    # Click on the view all button on the main page to load all the recommended accounts
-    browser.get("https://twitter.com/i/connect_people")  #  maybe it's useful for something passing user_id param ?
+            discovery = self.discover()
 
-    body_elem = browser.find_element_by_tag_name("body")
+            if self.logger and self.debug:
+                self.logger.debug("Performing follow")
+            try:
+                self.perform_follow(discovery)  #  Sometimes it clicks the user instead of the button.
+            except StaleElementReferenceException:
+              self.browser.get("https://twitter.com/i/connect_people")
+              if self.logger:
+                self.logger.info("Miss click. Going back to recommendations")
+              continue
 
-    timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
+            if self.logger and self.debug:
+                self.logger.debug("Reloading the page")
+            self.browser.refresh()  # Twitter seems to have disabled the infinite scroll by 2020.
 
-    if logger and debug:
-        logger.debug("Starting Followable elements discovery")
+        if self.logger and self.debug:
+            self.logger.info("Finished follow discovery successfully")
+        return self.num_followed
 
-    def discover_more(body_elem):
-        body_elem.send_keys(Keys.END)
-        sleep(2)
-        body_elem.send_keys(Keys.HOME)
-        sleep(2)
-
-    while len(timeline) < amount:      
-        last_length = len(timeline)
-
-        # Keep trying to discover more
+    def discover(self):
+        num_discovery = 0
+        # while num_discovery < (self.amount - self.num_followed):
         retry_i = 0
-        while retry_i < num_reload_retries:
-          discover_more(body_elem)
-          timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
-          if len(timeline) > last_length:
-            break
-          retry_i += 1
-          logger.info("Couldn't load more followable elements. Retrying {}/{}".format(retry_i, num_reload_retries))
+        while retry_i < self.num_discovery_retries:
+            # self.__updown()
+            discovery = self.browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
+            if len(discovery) > num_discovery:
+                retry_i = 0
+                num_discovery = len(discovery)
+                if self.logger and self.debug:
+                    self.debug("Discovered {} new followable accounts".format(len(num_discovery) - num_discovery))
+                continue
+            if num_discovery >= (self.amount - self.num_followed):
+                if self.logger and self.debug:
+                    self.debug("Discovered all the remaining necessary accounts")
+                break
+            retry_i += 1
+            self.logger.debug("Couldn't load more followable elements. Retrying {}/{}".format(retry_i, self.num_discovery_retries))
         else:
-          if logger and debug:
-              logger.debug("Finished following loop due to the browser not loading more followable elements")
-          break
+            if self.logger and self.debug:
+                self.logger.debug("Finished following loop due to the browser not loading more followable elements")
+        # break
+        # else:
+        #     if self.logger and self.debug:
+        #         self.logger.debug("Finished follow discovery ROUND successfully")
+        return discovery
 
-    else:
-        if logger and debug:
-            logger.debug("Finished follow discovery successfully")
+    def perform_follow(self, discovery):
+        for index, button in enumerate(discovery):
+            action_chain = Actions(self.browser)
+            action_chain.move_to_element(button)
+            action_chain.wait(1)
+            action_chain.click()
+            action_chain.wait(self.delay_click)
+            # action_chain.print_it(str(index + 1) + "/" + str(followed))
+            action_chain.perform()
+            self.num_followed += 1
 
-    if logger and debug:
-        logger.debug("Amount: {} - Timeline: {} - Last length: {}".format(amount, len(timeline), last_length))
-
-        # browser.execute_script("window.scroll(0, document.documentElement.scrollTop + 150)")
-
-    if len(timeline) > amount:
-        followed = amount
-    else:
-        followed = len(timeline)
-
-    # Click the buttons
-    for index, button in enumerate(timeline[:followed]):
-        action_chain = Actions(browser)
-        action_chain.move_to_element(button)
-        action_chain.wait(1)
-        action_chain.click()
-        action_chain.wait(1)
-        action_chain.print_it(str(index + 1) + "/" + str(followed))
-        action_chain.perform()
-
-    sleep(1)
-
-    return followed
+    # def __updown(self):
+    #     body_elem = self.browser.find_element_by_tag_name("body")
+    #     body_elem.send_keys(Keys.END)
+    #     sleep(2)
+    #     body_elem.send_keys(Keys.HOME)
+    #     sleep(2)
 

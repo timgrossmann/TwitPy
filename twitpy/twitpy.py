@@ -7,8 +7,8 @@ from selenium.webdriver.chrome.options import Options
 from .utils import get_logger, parse_args
 from .login_util import login_user
 from .print_log_writer import log_follower_num
-from .follow_util import follow_from_recommended
-from .unfollow_util import unfollow_users
+from .follow_util import FollowUtil
+from .unfollow_util import UnfollowUtil
 
 LOGGER = get_logger()
 ARGS = parse_args()
@@ -61,6 +61,7 @@ class TwitPy:
 
     def login(self):
         """Used to login the user either with the username and password"""
+        LOGGER.info("Logging in...")
         if not login_user(self.browser, self.username, self.password):
             LOGGER.info("Wrong login data!")
             self.logFile.write("Wrong login data!\n")
@@ -81,7 +82,7 @@ class TwitPy:
 
         return self
 
-    def follow_from_recom(self, amount=50):
+    def follow_from_recommended(self, amount=50):
         """Follows given amount of users from the 'Who to follow' list"""
 
         if self.aborting:
@@ -89,8 +90,10 @@ class TwitPy:
 
         followed = amount
 
+        follow_util = FollowUtil(self.browser, amount, logger=LOGGER, debug=ARGS.debug)
+
         while followed > 0:
-            new_followed = follow_from_recommended(self.browser, followed, logger=LOGGER, debug=ARGS.debug)
+            new_followed = follow_util.follow_from_recommended()
 
             if new_followed == 0:
                 print("Aborting because no recommendations left")
@@ -98,6 +101,9 @@ class TwitPy:
                 break
 
             followed -= new_followed
+
+            LOGGER.info("New followed {}".format(new_followed))
+
 
         self.followed += followed
 
@@ -110,14 +116,17 @@ class TwitPy:
             return self
 
         to_unfollow = amount
+        unfollow_util = UnfollowUtil(self.browser, amount, logger=LOGGER, debug=ARGS.debug)
 
         while to_unfollow > 0:
-            new_unfollowed = unfollow_users(self.browser, to_unfollow)
+            new_unfollowed = unfollow_util.unfollow_users()
 
             if new_unfollowed == 0:
                 break
 
             to_unfollow -= new_unfollowed
+
+            LOGGER.info("New unfollowed {}".format(new_unfollowed))
 
         return self
 
@@ -129,9 +138,9 @@ class TwitPy:
         if self.nogui:
             self.display.stop()
 
-        print("")
-        print("Session ended")
-        print("-------------")
+        LOGGER.info("")
+        LOGGER.info("Session ended")
+        LOGGER.info("-------------")
 
         self.logFile.write("\nSession ended - {}\n".format(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
         self.logFile.write("-" * 20 + "\n\n")
