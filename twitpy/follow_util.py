@@ -4,7 +4,7 @@ from .time_util import sleep
 from selenium.webdriver.common.keys import Keys
 
 
-def follow_from_recommended(browser, amount, logger=None, debug=False):
+def follow_from_recommended(browser, amount, num_reload_retries=10, retry_delay=2, logger=None, debug=False):
     """Follows given amount of users from the who to follow list"""
 
     followed = 0
@@ -20,17 +20,29 @@ def follow_from_recommended(browser, amount, logger=None, debug=False):
     if logger and debug:
         logger.debug("Starting Followable elements discovery")
 
-    while len(timeline) < amount:
-        last_length = len(timeline)
+    def discover_more(body_elem):
         body_elem.send_keys(Keys.END)
         sleep(2)
         body_elem.send_keys(Keys.HOME)
         sleep(2)
-        timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
-        if len(timeline) <= last_length:
-            if logger and debug:
-                logger.debug("Finished following loop due to the browser not loading more followable elements")
+
+    while len(timeline) < amount:      
+        last_length = len(timeline)
+
+        # Keep trying to discover more
+        retry_i = 0
+        while retry_i < num_reload_retries:
+          discover_more(body_elem)
+          timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
+          if len(timeline) > last_length:
             break
+          retry_i += 1
+          logger.info("Couldn't load more followable elements. Retrying {}/{}".format(retry_i, num_reload_retries))
+        else:
+          if logger and debug:
+              logger.debug("Finished following loop due to the browser not loading more followable elements")
+          break
+
     else:
         if logger and debug:
             logger.debug("Finished follow discovery successfully")
