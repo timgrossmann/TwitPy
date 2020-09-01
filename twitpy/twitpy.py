@@ -4,14 +4,14 @@ from pyvirtualdisplay import Display
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 
-from .utils import get_logger
+from .utils import get_logger, parse_args
 from .login_util import login_user
 from .print_log_writer import log_follower_num
 from .follow_util import follow_from_recommended
 from .unfollow_util import unfollow_users
 
 LOGGER = get_logger()
-
+ARGS = parse_args()
 
 class TwitPy:
     """Class to be instantiated to use the script"""
@@ -90,7 +90,7 @@ class TwitPy:
         followed = amount
 
         while followed > 0:
-            new_followed = follow_from_recommended(self.browser, followed)
+            new_followed = follow_from_recommended(self.browser, followed, logger=LOGGER, debug=ARGS.debug)
 
             if new_followed == 0:
                 print("Aborting because no recommendations left")

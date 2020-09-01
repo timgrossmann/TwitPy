@@ -4,7 +4,7 @@ from .time_util import sleep
 from selenium.webdriver.common.keys import Keys
 
 
-def follow_from_recommended(browser, amount):
+def follow_from_recommended(browser, amount, logger=None, debug=False):
     """Follows given amount of users from the who to follow list"""
 
     followed = 0
@@ -17,17 +17,28 @@ def follow_from_recommended(browser, amount):
 
     timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
 
-    # Make visible the buttons
-    while len(timeline) < amount and len(timeline) > last_length:
+    if logger and debug:
+        logger.debug("Starting Followable elements discovery")
+
+    while len(timeline) < amount:
         last_length = len(timeline)
         body_elem.send_keys(Keys.END)
         sleep(2)
         body_elem.send_keys(Keys.HOME)
         sleep(2)
+        timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
+        if len(timeline) <= last_length:
+            if logger and debug:
+                logger.debug("Finished following loop due to the browser not loading more followable elements")
+            break
+    else:
+        if logger and debug:
+            logger.debug("Finished follow discovery successfully")
+
+    if logger and debug:
+        logger.debug("Amount: {} - Timeline: {} - Last length: {}".format(amount, len(timeline), last_length))
 
         # browser.execute_script("window.scroll(0, document.documentElement.scrollTop + 150)")
-
-        timeline = browser.find_elements_by_xpath("//div[@data-testid='UserCell']//span[contains(text(),'Follow')]")
 
     if len(timeline) > amount:
         followed = amount
