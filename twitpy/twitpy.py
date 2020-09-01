@@ -1,4 +1,5 @@
 """OS Modules environ method to get the setup vars from the Environment"""
+import utils
 from datetime import datetime
 from pyvirtualdisplay import Display
 from selenium import webdriver
@@ -8,6 +9,10 @@ from .login_util import login_user
 from .print_log_writer import log_follower_num
 from .follow_util import follow_from_recommended
 from .unfollow_util import unfollow_users
+
+
+LOGGER = utils.get_logger)
+
 
 class TwitPy:
   """Class to be instantiated to use the script"""
@@ -44,7 +49,7 @@ class TwitPy:
                        % (datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
     if not username or not password:
-      print('Please provide Username and Password')
+      LOGGER.info('Please provide Username and Password')
       return
 
     self.username = username
@@ -60,12 +65,12 @@ class TwitPy:
   def login(self):
     """Used to login the user either with the username and password"""
     if not login_user(self.browser, self.username, self.password):
-      print('Wrong login data!')
+      LOGGER.info('Wrong login data!')
       self.logFile.write('Wrong login data!\n')
 
       self.aborting = True
     else:
-      print('Logged in successfully!')
+      LOGGER.info('Logged in successfully!')
       self.logFile.write('Logged in successfully!\n')
 
     try:

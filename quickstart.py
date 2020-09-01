@@ -7,6 +7,6 @@ except ImportError:
 TwitPy(username=config.USERNAME, password=config.PASSWORD,
   chrome_path=config.CHROME_PATH) \
   .login() \
-  .follow_from_recom(amount=5) \
-  .unfollow_users(amount=5) \
+  .follow_from_recom(amount=100) \
+  .unfollow_users(amount=100) \
   .end()
