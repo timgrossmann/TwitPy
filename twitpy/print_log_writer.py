@@ -7,7 +7,8 @@ def log_follower_num(browser, username):
   a seperate file"""
   browser.get('https://www.twitter.com/' + username)
 
-  followed_by = browser.find_element_by_xpath('//a[@data-nav ="followers"]/span[@class="ProfileNav-value"]').text
+  followed_by = browser.find_elements_by_xpath("//a[contains(@href, '/followers')]/span")[0].text
 
   with open('./logs/followerNum.txt', 'a') as numFile:
     numFile.write('{:%Y-%m-%d %H:%M} {}\n'.format(datetime.now(), followed_by or 0))
+

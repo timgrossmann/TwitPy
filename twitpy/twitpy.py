@@ -68,6 +68,13 @@ class TwitPy:
       print('Logged in successfully!')
       self.logFile.write('Logged in successfully!\n')
 
+    try:
+      # get the username from the logo image link, in case we log in with the email.
+      profile_logos = self.browser.find_elements_by_xpath("//div[@style='flex-basis: 49px;']//a")
+      self.username = profile_logos[0].get_attribute('href').split("/")[-1]
+    except IndexError:
+      pass
+
     log_follower_num(self.browser, self.username)
 
     return self
